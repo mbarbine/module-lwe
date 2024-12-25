@@ -8,16 +8,16 @@ use ring_mod::{polyadd, polymul, gen_uniform_poly};
 #[derive(Debug)]
 pub struct Parameters {
     pub n: usize,       // Polynomial modulus degree
-    pub q: usize,       // Ciphertext modulus
+    pub q: i64,       // Ciphertext modulus
     pub k: usize,       // Plaintext modulus
     pub f: Polynomial<i64>, // Polynomial modulus (x^n + 1 representation)
 }
 
 impl Default for Parameters {
     fn default() -> Self {
-        let n = 16;
-        let q = 67;
-        let k = 2;
+        let n = 8;
+        let q = 14_887;
+        let k = 4;
         let mut poly_vec = vec![0i64;n+1];
         poly_vec[0] = 1;
         poly_vec[n] = 1;

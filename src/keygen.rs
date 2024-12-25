@@ -3,31 +3,25 @@ use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_
 use std::collections::HashMap;
 
 pub fn keygen(
-	size: usize, //polynomial modulus degree
-	modulus: i64, //ciphertext modulus
-	rank: usize, //module rank
-	poly_mod: &Polynomial<i64>, //polynomial modulus
+	params: &Parameters,
     seed: Option<u64> //random seed
-) -> (Vec<Vec<Polynomial<i64>>>, Vec<Polynomial<i64>>, Vec<Polynomial<i64>>) {
+) -> ((Vec<Vec<Polynomial<i64>>>, Vec<Polynomial<i64>>), Vec<Polynomial<i64>>) {
+    let (n,q,k,f) = (params.n, params.q, params.k, &params.f);
     //Generate a public and secret key
-    let a = gen_uniform_matrix(size, rank, modulus, seed);
-    let sk = gen_small_vector(size, rank, seed);
-    let e = gen_small_vector(size, rank, seed);
-    let t = add_vec(&mul_mat_vec_simple(&a, &sk, modulus, &poly_mod), &e, modulus, &poly_mod);
+    let a = gen_uniform_matrix(n, k, q, seed);
+    let sk = gen_small_vector(n, k, seed);
+    let e = gen_small_vector(n, k, seed);
+    let t = add_vec(&mul_mat_vec_simple(&a, &sk, q, &f), &e, q, &f);
     
-    //Return public key (a, t) and secret key (sk) as a 3-tuple
-    (a, t, sk)
+    //Return public key (a, t) and secret key (sk) as a 2-tuple
+    ((a, t), sk)
 }
 
 //function to generate public/secret keys as key:value pairs
 pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, String> {
 
-    //get parameters
-    let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
-
     //generate public, secret keys
-    let (a,t,sk) = keygen(n,q as i64,k,&f,seed);
-    let pk = (a,t);
+    let (pk,sk) = keygen(params,seed);
 
     // Convert public key to a flattened list of coefficients
     let mut pk_coeffs: Vec<i64> = pk.0
@@ -35,7 +29,7 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
         .flat_map(|row| {
             row.iter().flat_map(|poly| {
                 let mut coeffs = poly.coeffs().to_vec();
-                coeffs.resize(n, 0); // Resize to include leading zeros up to size `n`
+                coeffs.resize(params.n, 0); // Resize to include leading zeros up to size `n`
                 coeffs
             })
         })
@@ -44,7 +38,7 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
         pk.1.iter()
         .flat_map(|poly| {
             let mut coeffs = poly.coeffs().to_vec();
-            coeffs.resize(n, 0); // Resize to include leading zeros up to size `n`
+            coeffs.resize(params.n, 0); // Resize to include leading zeros up to size `n`
             coeffs
         })
     );
