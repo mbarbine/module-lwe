@@ -1,6 +1,6 @@
 # module-LWE
 
-![example workflow](https://github.com/jacksonwalters/lattice-based-rust/actions/workflows/basic.yml/badge.svg)
+![example workflow](https://github.com/lattice-based-cryptography/module-lwe/actions/workflows/basic.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Implmentation of lattice-based encryption method ring-LWE in pure Rust.
