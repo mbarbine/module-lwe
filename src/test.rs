@@ -49,7 +49,6 @@ mod tests {
 
         // Decrypt ciphertext sum u+v
         let decrypted_sum = decrypt(&sk, q, f, &ciphertext_sum.0, &ciphertext_sum.1);
-        println!("{:?}",decrypted_sum);
 
         assert_eq!(decrypted_sum, plaintext_sum, "test failed: {:?} != {:?}", decrypted_sum, plaintext_sum);
     }
