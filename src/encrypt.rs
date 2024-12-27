@@ -6,12 +6,18 @@ pub fn encrypt(
     a: &Vec<Vec<Polynomial<i64>>>,
     t: &Vec<Polynomial<i64>>,
     m_b: Vec<i64>,
-    f: &Polynomial<i64>,
-    q: i64,
-    r: &Vec<Polynomial<i64>>,
-    e1: &Vec<Polynomial<i64>>,
-    e2: &Polynomial<i64>
+    params: &Parameters,
+    seed: Option<u64>
 ) -> (Vec<Polynomial<i64>>, Polynomial<i64>) {
+
+    //get parameters
+    let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
+    
+    //generate random ephermal keys
+    let r = gen_small_vector(n, k, seed);
+    let e1 = gen_small_vector(n, k, seed);
+    let e2 = gen_small_vector(n, 1, seed)[0].clone(); // Single polynomial
+
     //compute nearest integer to q/2
     let half_q = (q as f64 / 2.0 + 0.5) as i64;
 
@@ -19,10 +25,10 @@ pub fn encrypt(
     let m = Polynomial::new(vec![half_q])*Polynomial::new(m_b);
 
     // Compute u = a^T * r + e_1 mod q
-    let u = add_vec(&mul_mat_vec_simple(&transpose(a), r, q, f), e1, q, f);
+    let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f), &e1, q, f);
 
     // Compute v = t * r + e_2 - m mod q
-    let v = polysub(&polyadd(&mul_vec_simple(t, r, q, f), e2, q, f), &m, q, f);
+    let v = polysub(&polyadd(&mul_vec_simple(t, &r, q, &f), &e2, q, f), &m, q, f);
 
     (u, v)
 }
@@ -31,12 +37,7 @@ pub fn encrypt(
 pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Parameters, seed: Option<u64>) -> String {
 
     //get parameters
-    let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
-
-    // Randomly generated values for r, e1, and e2
-    let r = gen_small_vector(n, k, seed);
-    let e1 = gen_small_vector(n, k, seed);
-    let e2 = gen_small_vector(n, 1, seed)[0].clone(); // Single polynomial
+    let (n, k) = (params.n, params.k);
 
     // Parse public key
     
@@ -69,7 +70,7 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
     // Encrypt each block
     let mut ciphertext_list = vec![];
     for block in message_blocks {
-        let (u, v) = encrypt(&a, &t, block, &f, q as i64, &r, &e1, &e2);
+        let (u, v) = encrypt(&a, &t, block, params, seed);
         let u_flattened: Vec<i64> = u.iter()
             .flat_map(|poly| {
                 let mut coeffs = poly.coeffs().to_vec();

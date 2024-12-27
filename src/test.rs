@@ -3,7 +3,8 @@ mod tests {
     use crate::keygen::{keygen,keygen_string};
     use crate::encrypt::{encrypt,encrypt_string};
     use crate::decrypt::{decrypt,decrypt_string};
-    use module_lwe::{Parameters,gen_small_vector,add_vec};
+    use module_lwe::{Parameters,add_vec};
+    use module_lwe::ring_mod::{polyadd};
 
     // Test for basic keygen/encrypt/decrypt of a message
     #[test]
@@ -25,27 +26,24 @@ mod tests {
 
         let seed = None; //set the random seed
         let params = Parameters::default();
-        let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
-
-        // Randomly generated values for r, e1, and e2
-        let r = gen_small_vector(n, k, seed);
-        let e1 = gen_small_vector(n, k, seed);
-        let e2 = gen_small_vector(n, 1, seed)[0].clone(); // Single polynomial
+        let (n, q, f) = (params.n, params.q, &params.f);
 
         let mut m0 = vec![0i64; n];
-        m0[0] = 10;
+        m0[0] = 1;
+        m0[1] = 0;
+        m0[2] = 1;
         let mut m1 = vec![0i64; n];
-        m1[0] = 5;
+        m1[0] = 3;
         let mut plaintext_sum = vec![0i64; n];
         plaintext_sum[0] = m0[0] + m1[0];
         let (pk, sk) = keygen(&params,seed);
 
         // Encrypt plaintext messages
-        let u = encrypt(&pk.0, &pk.1, m0, f, q, &r, &e1, &e2);
-        let v = encrypt(&pk.0, &pk.1, m1, f, q, &r, &e1, &e2);
+        let u = encrypt(&pk.0, &pk.1, m0, &params, seed);
+        let v = encrypt(&pk.0, &pk.1, m1, &params, seed);
 
         // Compute sum of encrypted data
-        let ciphertext_sum = (add_vec(&u.0,&v.0,q,f), &u.1 + &v.1);
+        let ciphertext_sum = (add_vec(&u.0,&v.0,q,f), polyadd(&u.1,&v.1,q,f));
 
         // Decrypt ciphertext sum u+v
         let decrypted_sum = decrypt(&sk, q, f, &ciphertext_sum.0, &ciphertext_sum.1);

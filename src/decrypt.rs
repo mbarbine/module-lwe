@@ -62,7 +62,7 @@ pub fn decrypt_string(sk_string: &String, ciphertext_string: &String, params: &P
         let v = Polynomial::new(v_array.to_vec());
             
         // Decrypt the ciphertext
-        let mut m_b = decrypt(&sk, q as i64, &f, &u, &v);
+        let mut m_b = decrypt(&sk, q, &f, &u, &v);
         m_b.resize(n,0);
             
         message_binary.extend(m_b);

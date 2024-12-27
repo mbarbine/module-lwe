@@ -15,9 +15,9 @@ pub struct Parameters {
 
 impl Default for Parameters {
     fn default() -> Self {
-        let n = 8;
-        let q = 14_887;
-        let k = 4;
+        let n = 16;
+        let q = 1048576;
+        let k = 2;
         let mut poly_vec = vec![0i64;n+1];
         poly_vec[0] = 1;
         poly_vec[n] = 1;
