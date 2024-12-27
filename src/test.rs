@@ -28,14 +28,12 @@ mod tests {
         let params = Parameters::default();
         let (n, q, f) = (params.n, params.q, &params.f);
 
-        let mut m0 = vec![0i64; n];
-        m0[0] = 1;
-        m0[1] = 0;
-        m0[2] = 1;
-        let mut m1 = vec![0i64; n];
-        m1[0] = 3;
-        let mut plaintext_sum = vec![0i64; n];
-        plaintext_sum[0] = m0[0] + m1[0];
+        let mut m0 = vec![1, 0, 1, 0]; // = 5
+        m0.resize(n, 0);
+        let mut m1 = vec![0, 0, 1, 1]; // = 12
+        m1.resize(n, 0);
+        let mut plaintext_sum = vec![1, 0, 0, 0, 1]; // = 17
+        plaintext_sum.resize(n, 0);
         let (pk, sk) = keygen(&params,seed);
 
         // Encrypt plaintext messages
