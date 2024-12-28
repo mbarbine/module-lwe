@@ -5,7 +5,7 @@ use module_lwe::ring_mod::polysub;
 pub fn decrypt(
     sk: &Vec<Polynomial<i64>>,    //secret key
     q: i64,                     //ciphertext modulus
-    poly_mod: &Polynomial<i64>,  //polynomial modulus
+    f: &Polynomial<i64>,  //polynomial modulus
     u: &Vec<Polynomial<i64>>, //ciphertext vector
 	v: &Polynomial<i64> 		//ciphertext polynomial
 ) -> Vec<i64> {
@@ -13,7 +13,7 @@ pub fn decrypt(
 	//Returns a plaintext vector
 	
 	//Compute v-sk*u mod q
-	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &poly_mod), q, &poly_mod);
+	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, &f);
 	let half_q = (q as f64 / 2.0 + 0.5) as i64;
 	let mut decrypted_coeffs = vec![];
 	let mut s;
@@ -62,7 +62,7 @@ pub fn decrypt_string(sk_string: &String, ciphertext_string: &String, params: &P
         let v = Polynomial::new(v_array.to_vec());
             
         // Decrypt the ciphertext
-        let mut m_b = decrypt(&sk, q as i64, &f, &u, &v);
+        let mut m_b = decrypt(&sk, q, &f, &u, &v);
         m_b.resize(n,0);
             
         message_binary.extend(m_b);
