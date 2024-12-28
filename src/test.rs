@@ -20,7 +20,12 @@ mod tests {
         assert_eq!(message, decrypted_message, "test failed: {} != {}", message, decrypted_message);
     }
 
-    // Test homomorphic addition property: ensure sum of encrypted plaintexts decrypts to plaintext sum
+    // Test homomorphic addition property: 
+    // for plaintext polynomials m0, m1
+    // assert: dec(enc(m0) + enc(m1)) = m0 + m1
+    // note that the plaintext modulus is t=2 implicitly
+    // since we are using half_q = q/2 = q/t = delta
+    // the homomorphism is enc: R_q -> R_t, and dec: R_t -> R_q
     #[test]
     pub fn test_hom_add() {
 
@@ -28,11 +33,11 @@ mod tests {
         let params = Parameters::default();
         let (n, q, f) = (params.n, params.q, &params.f);
 
-        let mut m0 = vec![1, 0, 1, 0]; // = 5
+        let mut m0 = vec![1, 0, 1];
         m0.resize(n, 0);
-        let mut m1 = vec![0, 0, 1, 1]; // = 12
+        let mut m1 = vec![0, 0, 1];
         m1.resize(n, 0);
-        let mut plaintext_sum = vec![1, 0, 0, 0, 1]; // = 17
+        let mut plaintext_sum = vec![1, 0, 0];
         plaintext_sum.resize(n, 0);
         let (pk, sk) = keygen(&params,seed);
 
@@ -44,7 +49,8 @@ mod tests {
         let ciphertext_sum = (add_vec(&u.0,&v.0,q,f), polyadd(&u.1,&v.1,q,f));
 
         // Decrypt ciphertext sum u+v
-        let decrypted_sum = decrypt(&sk, q, f, &ciphertext_sum.0, &ciphertext_sum.1);
+        let mut decrypted_sum = decrypt(&sk, q, f, &ciphertext_sum.0, &ciphertext_sum.1);
+        decrypted_sum.resize(n, 0);
 
         assert_eq!(decrypted_sum, plaintext_sum, "test failed: {:?} != {:?}", decrypted_sum, plaintext_sum);
     }
