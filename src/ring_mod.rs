@@ -84,3 +84,7 @@ pub fn gen_uniform_poly(size: usize, q: i64, seed: Option<u64>) -> Polynomial<i6
 	}
 	Polynomial::new(coeffs)
 }
+
+pub fn nearest_int(a: i64, b: i64) -> i64 {
+    (a + b / 2) / b
+}

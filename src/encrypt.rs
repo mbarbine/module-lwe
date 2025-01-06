@@ -1,5 +1,5 @@
 use polynomial_ring::Polynomial;
-use module_lwe::ring_mod::{polyadd,polysub};
+use module_lwe::ring_mod::{polyadd,polysub,nearest_int};
 use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
 
 pub fn encrypt(
@@ -19,7 +19,7 @@ pub fn encrypt(
     let e2 = gen_small_vector(n, 1, seed)[0].clone(); // Single polynomial
 
     //compute nearest integer to q/2
-    let half_q = (q as f64 / 2.0 + 0.5) as i64;
+    let half_q = nearest_int(q,2);
 
     // Convert binary message to polynomial
     let m = Polynomial::new(vec![half_q])*Polynomial::new(m_b);
