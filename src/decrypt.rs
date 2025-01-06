@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
 use module_lwe::{Parameters,mul_vec_simple};
-use module_lwe::ring_mod::polysub;
+use module_lwe::ring_mod::{polysub,nearest_int};
 
 pub fn decrypt(
     sk: &Vec<Polynomial<i64>>,    //secret key
@@ -14,15 +14,11 @@ pub fn decrypt(
 	
 	//Compute v-sk*u mod q
 	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, &f);
-	let half_q = (q as f64 / 2.0 + 0.5) as i64;
+	let half_q = nearest_int(q,2);
 	let mut decrypted_coeffs = vec![];
 	let mut s;
 	for c in scaled_pt.coeffs().iter() {
-		if (half_q-c).abs() < std::cmp::min(*c, (q-c).abs()) {
-			s = 1;
-		} else {
-			s = 0;
-		};
+		s = nearest_int(*c,half_q) % 2;
 		decrypted_coeffs.push(s);
 	}
     decrypted_coeffs
