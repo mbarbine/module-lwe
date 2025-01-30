@@ -3,7 +3,7 @@
 ![example workflow](https://github.com/lattice-based-cryptography/module-lwe/actions/workflows/basic.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
-Implmentation of lattice-based encryption method ring-LWE in pure Rust.
+Implmentation of lattice-based encryption method module-LWE in pure Rust.
 
 **Description**: This provides the basic PKE (keygen, encryption, and decryption) operations for the module learning-with-errors scheme.
 
