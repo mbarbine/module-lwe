@@ -2,6 +2,7 @@
 
 ![example workflow](https://github.com/lattice-based-cryptography/module-lwe/actions/workflows/basic.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![Crates.io](https://img.shields.io/crates/v/module-lwe.svg)](https://crates.io/crates/module-lwe)
 
 Implmentation of lattice-based encryption method module-LWE in pure Rust.
 
