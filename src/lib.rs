@@ -2,7 +2,6 @@ use polynomial_ring::Polynomial;
 use rand_distr::{Uniform, Distribution};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
-pub mod ring_mod;
 use ring_lwe::{polyadd, polymul, gen_uniform_poly};
 
 #[derive(Debug)]
