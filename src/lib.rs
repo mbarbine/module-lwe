@@ -6,13 +6,19 @@ pub mod ring_mod;
 use ring_mod::{polyadd, polymul, gen_uniform_poly};
 
 #[derive(Debug)]
+/// default parameters for module-LWE
 pub struct Parameters {
-    pub n: usize,       // Polynomial modulus degree
-    pub q: i64,       // Ciphertext modulus
-    pub k: usize,       // Plaintext modulus
-    pub f: Polynomial<i64>, // Polynomial modulus (x^n + 1 representation)
+	/// degree of the polynomials
+    pub n: usize,
+	/// Ciphertext modulus
+    pub q: i64,
+	/// Plaintext modulus    
+    pub k: usize,     
+	/// Polynomial modulus
+    pub f: Polynomial<i64>, 
 }
 
+/// default parameters for module-LWE
 impl Default for Parameters {
     fn default() -> Self {
         let n = 32;
@@ -26,12 +32,16 @@ impl Default for Parameters {
     }
 }
 
+/// add two vectors of polynomials
+/// # Arguments
+/// * `v0` - vector of polynomials
+/// * `v1` - vector of polynomials
+/// * `modulus` - modulus
+/// * `poly_mod` - polynomial modulus
+/// # Returns
+/// * `result` - vector of polynomials
 pub fn add_vec(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>) -> Vec<Polynomial<i64>> {
-	//add two vectors of polynomials
-	
 	assert!(v0.len() == v1.len());
-	// sizes need to be the same
-	
 	let mut result = vec![];
 	for i in 0..v0.len() {
 		result.push(polyadd(&v0[i], &v1[i], modulus, &poly_mod));
@@ -39,12 +49,16 @@ pub fn add_vec(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i6
 	result
 }
 
+/// take the dot product of two vectors of polynomials
+/// # Arguments
+/// * `v0` - vector of polynomials
+/// * `v1` - vector of polynomials
+/// * `modulus` - modulus
+/// * `poly_mod` - polynomial modulus
+/// # Returns
+/// * `result` - polynomial
 pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>) -> Polynomial<i64> {
-	//take the dot product of two vectors of polynomials
-	
 	assert!(v0.len() == v1.len());
-	// sizes need to be the same
-	
 	let mut result = Polynomial::new(vec![]);
 	for i in 0..v0.len() {
 		result = polyadd(&result, &polymul(&v0[i], &v1[i], modulus, &poly_mod), modulus, &poly_mod);
@@ -52,8 +66,15 @@ pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modu
 	result
 }
 
+/// multiply a matrix by a vector of polynomials
+/// # Arguments
+/// * `m` - matrix of polynomials
+/// * `v` - vector of polynomials
+/// * `modulus` - modulus
+/// * `poly_mod` - polynomial modulus
+/// # Returns
+/// * `result` - vector of polynomials
 pub fn mul_mat_vec_simple(m: &Vec<Vec<Polynomial<i64>>>, v: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>) -> Vec<Polynomial<i64>> {
-	//multiply a matrix by a vector of polynomials
 	
 	let mut result = vec![];
 	for i in 0..m.len() {
@@ -62,9 +83,12 @@ pub fn mul_mat_vec_simple(m: &Vec<Vec<Polynomial<i64>>>, v: &Vec<Polynomial<i64>
 	result
 }
 
+/// take the transpose of a matrix of polynomials
+/// # Arguments
+/// * `m` - matrix of polynomials
+/// # Returns
+/// * `result` - matrix of polynomials
 pub fn transpose(m: &Vec<Vec<Polynomial<i64>>>) -> Vec<Vec<Polynomial<i64>>> {
-	//take the transpose of a matrix of polynomials
-	
 	let mut result = vec![vec![Polynomial::new(vec![]); m.len()]; m[0].len()];
 	for i in 0..m.len() {
 		for j in 0..m[0].len() {
@@ -74,10 +98,14 @@ pub fn transpose(m: &Vec<Vec<Polynomial<i64>>>) -> Vec<Vec<Polynomial<i64>>> {
 	result
 }
 
+/// generates a vector of given rank of degree size-1 polynomials with coefficients in {-1,0,1}
+/// # Arguments
+/// * `size` - degree of the polynomials
+/// * `rank` - rank of the vector
+/// * `seed` - seed for the random number generator
+/// # Returns
+/// * `v` - vector of polynomials
 pub fn gen_small_vector(size : usize, rank: usize, seed: Option<u64>) -> Vec<Polynomial<i64>> {
-	//generates a vector of given rank of degree size-1 polynomials
-	//with coefficients in [-1,0,1]
-	
 	let mut v = vec![];
 	let between = Uniform::new(0,3);
 	let mut rng = match seed {
@@ -94,10 +122,15 @@ pub fn gen_small_vector(size : usize, rank: usize, seed: Option<u64>) -> Vec<Pol
 	v
 }
 
+/// generates a `rank x rank` matrix of degree `size-1` polynomials with uniform coefficients in Z_modulus
+/// # Arguments
+/// * `size` - degree of the polynomials
+/// * `rank` - rank of the matrix
+/// * `modulus` - modulus
+/// * `seed` - seed for the random number generator
+/// # Returns
+/// * `m` - matrix of polynomials
 pub fn gen_uniform_matrix(size : usize, rank: usize, modulus: i64, seed: Option<u64>) -> Vec<Vec<Polynomial<i64>>> {
-	//generates a rank by rank matrix of degree size-1 polynomials
-	//with uniform coefficients in Z_modulus
-	
 	let mut m = vec![vec![Polynomial::new(vec![]); rank]; rank];
 	for i in 0..rank {
 		for j in 0..rank {
