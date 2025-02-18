@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
 use module_lwe::{Parameters,mul_vec_simple};
-use module_lwe::ring_mod::{polysub,nearest_int};
+use ring_lwe::{polysub,nearest_int};
 
 /// Decrypt a ciphertext
 /// # Arguments
@@ -29,12 +29,12 @@ pub fn decrypt(
     u: &Vec<Polynomial<i64>>, //ciphertext vector
 	v: &Polynomial<i64> 		//ciphertext polynomial
 ) -> Vec<i64> {
-	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, &f); //Compute v-sk*u mod q
+	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, f); //Compute v-sk*u mod q
 	let half_q = nearest_int(q,2); // compute nearest integer to q/2
 	let mut decrypted_coeffs = vec![];
 	let mut s;
 	for c in scaled_pt.coeffs().iter() {
-		s = nearest_int(*c,half_q) % 2;
+		s = nearest_int(*c,half_q).rem_euclid(2);
 		decrypted_coeffs.push(s);
 	}
     decrypted_coeffs
