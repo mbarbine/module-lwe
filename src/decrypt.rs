@@ -2,6 +2,26 @@ use polynomial_ring::Polynomial;
 use module_lwe::{Parameters,mul_vec_simple};
 use module_lwe::ring_mod::{polysub,nearest_int};
 
+/// Decrypt a ciphertext
+/// # Arguments
+/// * `sk` - secret key
+/// * `q` - ciphertext modulus
+/// * `f` - polynomial modulus
+/// * `u` - ciphertext vector
+/// * `v` - ciphertext polynomial
+/// # Returns
+/// * `decrypted_coeffs` - plaintext vector
+/// # Example
+/// ```
+/// use polynomial_ring::Polynomial;
+/// use module_lwe::decrypt;
+/// let params = Parameters::default();
+/// let (pk,sk) = keygen(&params, None);
+/// let m_b = vec![0,1,0,1,1,0,1,0];
+/// let (u, v) = encrypt(&pk.0, &pk.1, m_b, &params, None);
+/// let decrypted_coeffs = decrypt(&sk, params.q, &params.f, &u, &v);
+/// assert_eq!(m_b, decrypted_coeffs);
+/// ```
 pub fn decrypt(
     sk: &Vec<Polynomial<i64>>,    //secret key
     q: i64,                     //ciphertext modulus
@@ -9,12 +29,8 @@ pub fn decrypt(
     u: &Vec<Polynomial<i64>>, //ciphertext vector
 	v: &Polynomial<i64> 		//ciphertext polynomial
 ) -> Vec<i64> {
-	//Decrypt a ciphertext (u,v)
-	//Returns a plaintext vector
-	
-	//Compute v-sk*u mod q
-	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, &f);
-	let half_q = nearest_int(q,2);
+	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, &f); //Compute v-sk*u mod q
+	let half_q = nearest_int(q,2); // compute nearest integer to q/2
 	let mut decrypted_coeffs = vec![];
 	let mut s;
 	for c in scaled_pt.coeffs().iter() {
@@ -24,7 +40,13 @@ pub fn decrypt(
     decrypted_coeffs
 }
 
-//decrypt a ciphertext string given a secret key
+/// decrypt a ciphertext string given a secret key
+/// # Arguments
+/// * `sk_string` - secret key string
+/// * `ciphertext_string` - ciphertext string
+/// * `params` - Parameters for the ring-LWE cryptosystem
+/// # Returns
+/// * `message_string` - decrypted message string
 pub fn decrypt_string(sk_string: &String, ciphertext_string: &String, params: &Parameters) -> String {
 
     //get parameters

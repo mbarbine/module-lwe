@@ -22,14 +22,11 @@ pub struct Parameters {
 impl Default for Parameters {
     fn default() -> Self {
         let n = 32;
-		/// ciphertext modulus
         let q = 59049;
-		/// module rank
         let k = 8;
         let mut poly_vec = vec![0i64;n+1];
         poly_vec[0] = 1;
         poly_vec[n] = 1;
-		/// polynomial modulus
         let f = Polynomial::new(poly_vec);
         Parameters { n, q, k, f }
     }

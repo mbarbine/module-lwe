@@ -2,6 +2,19 @@ use polynomial_ring::Polynomial;
 use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix};
 use std::collections::HashMap;
 
+/// Generate public and secret keys for the ring-LWE cryptosystem
+/// # Arguments
+/// * `params` - Parameters for the ring-LWE cryptosystem
+/// * `seed` - random seed
+/// # Returns
+/// * `((a, t), sk)` - public key (a, t) and secret key (sk)
+/// # Example
+/// ```
+/// use module_lwe::Parameters;
+/// use module_lwe::keygen;
+/// let params = Parameters::default();
+/// let (pk, sk) = keygen(&params, None);
+/// ```
 pub fn keygen(
 	params: &Parameters,
     seed: Option<u64> //random seed
@@ -17,7 +30,19 @@ pub fn keygen(
     ((a, t), sk)
 }
 
-//function to generate public/secret keys as key:value pairs
+/// Generate public and secret keys for the ring-LWE cryptosystem and return them as a HashMap
+/// # Arguments
+/// * `params` - Parameters for the ring-LWE cryptosystem
+/// * `seed` - random seed
+/// # Returns
+/// * `keys` - HashMap containing the public and secret keys
+/// # Example
+/// ```
+/// use module_lwe::Parameters;
+/// use module_lwe::keygen_string;
+/// let params = Parameters::default();
+/// let keys = keygen_string(&params, None);
+/// ```
 pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, String> {
 
     //generate public, secret keys

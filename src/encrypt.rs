@@ -2,6 +2,24 @@ use polynomial_ring::Polynomial;
 use module_lwe::ring_mod::{polyadd,polysub,nearest_int};
 use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
 
+/// Encrypt a message using the ring-LWE cryptosystem
+/// # Arguments
+/// * `a` - public key matrix
+/// * `t` - public key vector
+/// * `m_b` - binary message
+/// * `params` - Parameters for the ring-LWE cryptosystem
+/// * `seed` - random seed
+/// # Returns
+/// * `(u, v)` - ciphertext
+/// # Example
+/// ```
+/// use module_lwe::Parameters;
+/// use module_lwe::encrypt;
+/// let params = Parameters::default();
+/// let (pk,sk) = keygen(&params, None);
+/// let m_b = vec![0,1,0,1,1,0,1,0];
+/// let (u, v) = encrypt(&pk.0, &pk.1, m_b, &params, None);
+/// ```
 pub fn encrypt(
     a: &Vec<Vec<Polynomial<i64>>>,
     t: &Vec<Polynomial<i64>>,
@@ -33,7 +51,23 @@ pub fn encrypt(
     (u, v)
 }
 
-//function to encrypt a message given a public_key string
+/// function to encrypt a message given a public_key string
+/// # Arguments
+/// * `pk_string` - public key string
+/// * `message_string` - message string
+/// * `params` - Parameters for the ring-LWE cryptosystem
+/// * `seed` - random seed
+/// # Returns
+/// * `ciphertext_str` - ciphertext string
+/// # Example
+/// ```
+/// use module_lwe::Parameters;
+/// use module_lwe::encrypt_string;
+/// let params = Parameters::default();
+/// let (pk,sk) = keygen(&params, None);
+/// let message_string = "Hello, world!".to_string();
+/// let ciphertext_string = encrypt_string(&pk_string, &message_string, &params, None);
+/// ```
 pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Parameters, seed: Option<u64>) -> String {
 
     //get parameters
