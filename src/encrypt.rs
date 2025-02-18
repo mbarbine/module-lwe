@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
 use ring_lwe::{polyadd,polysub,nearest_int};
-use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
+use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
 
 /// Encrypt a message using the ring-LWE cryptosystem
 /// # Arguments
@@ -13,17 +13,15 @@ use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_sim
 /// * `(u, v)` - ciphertext
 /// # Example
 /// ```
-/// use module_lwe::Parameters;
-/// use module_lwe::encrypt;
-/// let params = Parameters::default();
-/// let (pk,sk) = keygen(&params, None);
+/// let params = module_lwe::utils::Parameters::default();
+/// let (pk,sk) = module_lwe::keygen::keygen(&params, None);
 /// let m_b = vec![0,1,0,1,1,0,1,0];
-/// let (u, v) = encrypt(&pk.0, &pk.1, m_b, &params, None);
+/// let (u, v) = module_lwe::encrypt::encrypt(&pk.0, &pk.1, &m_b, &params, None);
 /// ```
 pub fn encrypt(
     a: &Vec<Vec<Polynomial<i64>>>,
     t: &Vec<Polynomial<i64>>,
-    m_b: Vec<i64>,
+    m_b: &Vec<i64>,
     params: &Parameters,
     seed: Option<u64>
 ) -> (Vec<Polynomial<i64>>, Polynomial<i64>) {
@@ -40,7 +38,7 @@ pub fn encrypt(
     let half_q = nearest_int(q,2);
 
     // Convert binary message to polynomial
-    let m = Polynomial::new(vec![half_q])*Polynomial::new(m_b);
+    let m = Polynomial::new(vec![half_q])*Polynomial::new(m_b.to_vec());
 
     // Compute u = a^T * r + e_1 mod q
     let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f), &e1, q, f);
@@ -61,12 +59,12 @@ pub fn encrypt(
 /// * `ciphertext_str` - ciphertext string
 /// # Example
 /// ```
-/// use module_lwe::Parameters;
-/// use module_lwe::encrypt_string;
-/// let params = Parameters::default();
-/// let (pk,sk) = keygen(&params, None);
+/// let params = module_lwe::utils::Parameters::default();
+/// let keypair = module_lwe::keygen::keygen_string(&params,None);
+/// let pk_string = keypair.get("public").unwrap();
+/// let sk_string = keypair.get("secret").unwrap();
 /// let message_string = "Hello, world!".to_string();
-/// let ciphertext_string = encrypt_string(&pk_string, &message_string, &params, None);
+/// let ciphertext_string = module_lwe::encrypt::encrypt_string(&pk_string, &message_string, &params, None);
 /// ```
 pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Parameters, seed: Option<u64>) -> String {
 
@@ -104,7 +102,7 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
     // Encrypt each block
     let mut ciphertext_list = vec![];
     for block in message_blocks {
-        let (u, v) = encrypt(&a, &t, block, params, seed);
+        let (u, v) = encrypt(&a, &t, &block, params, seed);
         let u_flattened: Vec<i64> = u.iter()
             .flat_map(|poly| {
                 let mut coeffs = poly.coeffs().to_vec();

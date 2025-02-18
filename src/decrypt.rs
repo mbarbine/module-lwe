@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
-use module_lwe::{Parameters,mul_vec_simple};
 use ring_lwe::{polysub,nearest_int};
+use crate::utils::{Parameters,mul_vec_simple};
 
 /// Decrypt a ciphertext
 /// # Arguments
@@ -13,13 +13,12 @@ use ring_lwe::{polysub,nearest_int};
 /// * `decrypted_coeffs` - plaintext vector
 /// # Example
 /// ```
-/// use polynomial_ring::Polynomial;
-/// use module_lwe::decrypt;
-/// let params = Parameters::default();
-/// let (pk,sk) = keygen(&params, None);
-/// let m_b = vec![0,1,0,1,1,0,1,0];
-/// let (u, v) = encrypt(&pk.0, &pk.1, m_b, &params, None);
-/// let decrypted_coeffs = decrypt(&sk, params.q, &params.f, &u, &v);
+/// let params = module_lwe::utils::Parameters::default();
+/// let (pk,sk) = module_lwe::keygen::keygen(&params, None);
+/// let mut m_b = vec![0,1,0,1,0,0,1,1,1,0,1];
+/// m_b.resize(params.n, 0);
+/// let (u, v) = module_lwe::encrypt::encrypt(&pk.0, &pk.1, &m_b, &params, None);
+/// let decrypted_coeffs = module_lwe::decrypt::decrypt(&sk, params.q, &params.f, &u, &v);
 /// assert_eq!(m_b, decrypted_coeffs);
 /// ```
 pub fn decrypt(

@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
-use module_lwe::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix};
 use std::collections::HashMap;
+use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix};
 
 /// Generate public and secret keys for the ring-LWE cryptosystem
 /// # Arguments
@@ -10,10 +10,8 @@ use std::collections::HashMap;
 /// * `((a, t), sk)` - public key (a, t) and secret key (sk)
 /// # Example
 /// ```
-/// use module_lwe::Parameters;
-/// use module_lwe::keygen;
-/// let params = Parameters::default();
-/// let (pk, sk) = keygen(&params, None);
+/// let params = module_lwe::utils::Parameters::default();
+/// let (pk, sk) = module_lwe::keygen::keygen(&params, None);
 /// ```
 pub fn keygen(
 	params: &Parameters,
@@ -38,10 +36,8 @@ pub fn keygen(
 /// * `keys` - HashMap containing the public and secret keys
 /// # Example
 /// ```
-/// use module_lwe::Parameters;
-/// use module_lwe::keygen_string;
-/// let params = Parameters::default();
-/// let keys = keygen_string(&params, None);
+/// let params = module_lwe::utils::Parameters::default();
+/// let keys = module_lwe::keygen::keygen_string(&params, None);
 /// ```
 pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, String> {
 
