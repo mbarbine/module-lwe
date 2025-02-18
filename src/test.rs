@@ -3,7 +3,7 @@ mod tests {
     use crate::keygen::{keygen,keygen_string};
     use crate::encrypt::{encrypt,encrypt_string};
     use crate::decrypt::{decrypt,decrypt_string};
-    use module_lwe::{Parameters,add_vec};
+    use crate::utils::{Parameters,add_vec};
     use ring_lwe::polyadd;
 
     // Test for basic keygen/encrypt/decrypt of a message
@@ -42,8 +42,8 @@ mod tests {
         let (pk, sk) = keygen(&params,seed);
 
         // Encrypt plaintext messages
-        let u = encrypt(&pk.0, &pk.1, m0, &params, seed);
-        let v = encrypt(&pk.0, &pk.1, m1, &params, seed);
+        let u = encrypt(&pk.0, &pk.1, &m0, &params, seed);
+        let v = encrypt(&pk.0, &pk.1, &m1, &params, seed);
 
         // Compute sum of encrypted data
         let ciphertext_sum = (add_vec(&u.0,&v.0,q,f), polyadd(&u.1,&v.1,q,f));
