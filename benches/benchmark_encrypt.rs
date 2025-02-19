@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use module_lwe::encrypt::encrypt;
-use module_lwe::keygen::keygen;
+use module_lwe::encrypt::{encrypt,encrypt_string};
+use module_lwe::keygen::{keygen,keygen_string};
 use module_lwe::utils::Parameters;
 
 fn bench_encrypt(c: &mut Criterion) {
@@ -13,5 +13,16 @@ fn bench_encrypt(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, bench_encrypt);
+fn bench_encrypt_string(c: &mut Criterion) {
+    let params = Parameters::default();
+    let keypair = keygen_string(&params, None);
+    let pk_string = keypair.get("public").unwrap();
+    let message = String::from("hello");
+
+    c.bench_function("encrypt_string", |b| {
+        b.iter(|| encrypt_string(&pk_string, &message, &params, None))
+    });
+}
+
+criterion_group!(benches, bench_encrypt, bench_encrypt_string);
 criterion_main!(benches);
