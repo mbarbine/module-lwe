@@ -49,7 +49,7 @@ mod tests {
         let ciphertext_sum = (add_vec(&u.0,&v.0,q,f), polyadd(&u.1,&v.1,q,f));
 
         // Decrypt ciphertext sum u+v
-        let mut decrypted_sum = decrypt(&sk, q, f, &ciphertext_sum.0, &ciphertext_sum.1);
+        let mut decrypted_sum = decrypt(&sk, &ciphertext_sum.0, &ciphertext_sum.1, &params);
         decrypted_sum.resize(n, 0);
 
         assert_eq!(decrypted_sum, plaintext_sum, "test failed: {:?} != {:?}", decrypted_sum, plaintext_sum);

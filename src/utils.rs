@@ -2,7 +2,8 @@ use polynomial_ring::Polynomial;
 use rand_distr::{Uniform, Distribution};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
-use ring_lwe::utils::{polyadd, polymul, gen_uniform_poly};
+use ring_lwe::utils::{polyadd, polymul_fast, gen_uniform_poly};
+use ntt::omega;
 
 #[derive(Debug)]
 /// default parameters for module-LWE
@@ -11,23 +12,26 @@ pub struct Parameters {
     pub n: usize,
 	/// Ciphertext modulus
     pub q: i64,
-	/// Plaintext modulus    
-    pub k: usize,     
+	/// Module rank	
+    pub k: usize,
+	/// 2n-th root of unity	
+    pub omega: i64,
 	/// Polynomial modulus
-    pub f: Polynomial<i64>, 
+    pub f: Polynomial<i64>,
 }
 
 /// default parameters for module-LWE
 impl Default for Parameters {
     fn default() -> Self {
         let n = 32;
-        let q = 59049;
+        let q = 12289;
         let k = 8;
+		let omega = omega(q, 2*n);
         let mut poly_vec = vec![0i64;n+1];
         poly_vec[0] = 1;
         poly_vec[n] = 1;
         let f = Polynomial::new(poly_vec);
-        Parameters { n, q, k, f }
+        Parameters { n, q, k, omega, f }
     }
 }
 
@@ -54,13 +58,14 @@ pub fn add_vec(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i6
 /// * `v1` - vector of polynomials
 /// * `modulus` - modulus
 /// * `poly_mod` - polynomial modulus
+/// * `omega` - 2nth root of unity
 /// # Returns
 /// * `result` - polynomial
-pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>) -> Polynomial<i64> {
+pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>, omega: i64) -> Polynomial<i64> {
 	assert!(v0.len() == v1.len());
 	let mut result = Polynomial::new(vec![]);
 	for i in 0..v0.len() {
-		result = polyadd(&result, &polymul(&v0[i], &v1[i], modulus, &poly_mod), modulus, &poly_mod);
+		result = polyadd(&result, &polymul_fast(&v0[i], &v1[i], modulus, &poly_mod, omega), modulus, &poly_mod);
 	}
 	result
 }
@@ -71,13 +76,14 @@ pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modu
 /// * `v` - vector of polynomials
 /// * `modulus` - modulus
 /// * `poly_mod` - polynomial modulus
+/// * `omega` - 2nth root of unity
 /// # Returns
 /// * `result` - vector of polynomials
-pub fn mul_mat_vec_simple(m: &Vec<Vec<Polynomial<i64>>>, v: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>) -> Vec<Polynomial<i64>> {
+pub fn mul_mat_vec_simple(m: &Vec<Vec<Polynomial<i64>>>, v: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>, omega: i64) -> Vec<Polynomial<i64>> {
 	
 	let mut result = vec![];
 	for i in 0..m.len() {
-		result.push(mul_vec_simple(&m[i], &v, modulus, &poly_mod));
+		result.push(mul_vec_simple(&m[i], &v, modulus, &poly_mod, omega));
 	}
 	result
 }
