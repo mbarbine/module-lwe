@@ -23,7 +23,7 @@ pub struct Parameters {
 /// default parameters for module-LWE
 impl Default for Parameters {
     fn default() -> Self {
-        let n = 32;
+        let n = 512;
         let q = 12289;
         let k = 8;
 		let omega = omega(q, 2*n);
