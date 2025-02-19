@@ -41,7 +41,7 @@ Generates the ciphertext.
 
 Decrypts the ciphertext given a secret key, printing the plaintext message.
 
-**Benchmarks**
+**Benchmarks**:
 
 | n  | q     | k | keygen   | encrypt   | decrypt   | keygen_string | encrypt_string | decrypt_string |
 |----|-------|---|----------|-----------|-----------|---------------|----------------|----------------|
