@@ -1,6 +1,6 @@
 [package]
 name = "module-lwe"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "Implements the module learning-with-errors public key encrpytion scheme."
 license = "MIT"
@@ -14,7 +14,7 @@ num-traits = "=0.2.19"
 rand = "0.8.5"
 rand_distr = "0.4.3"
 ntt = "0.1.9"
-ring-lwe = "0.1.5"
+ring-lwe = "0.1.6"
 
 [dev-dependencies]
 criterion = "0.5.1"
