@@ -43,6 +43,6 @@ Decrypts the ciphertext given a secret key, printing the plaintext message.
 
 **Benchmarks**
 
-| n  | q     | k  | keygen   | encrypt   | decrypt   | keygen_string | encrypt_string | decrypt_string |
-|----|-------|----|----------|-----------|-----------|---------------|----------------|----------------|
-| 32 | 12289 | 8  | 286.05 µs| 230.64 µs | 24.253 µs | 397.93 µs     | 545.25 µs      | 64.615 µs      |
+| n  | q     | k | keygen   | encrypt   | decrypt   | keygen_string | encrypt_string | decrypt_string |
+|----|-------|---|----------|-----------|-----------|---------------|----------------|----------------|
+| 32 | 12289 | 8 | 286.05 µs| 230.64 µs | 24.253 µs | 397.93 µs     | 545.25 µs      | 64.615 µs      |
