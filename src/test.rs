@@ -4,7 +4,7 @@ mod tests {
     use crate::encrypt::{encrypt,encrypt_string};
     use crate::decrypt::{decrypt,decrypt_string};
     use crate::utils::{Parameters,add_vec};
-    use ring_lwe::polyadd;
+    use ring_lwe::utils::polyadd;
 
     // Test for basic keygen/encrypt/decrypt of a message
     #[test]

@@ -1,5 +1,5 @@
 use polynomial_ring::Polynomial;
-use ring_lwe::{polysub,nearest_int};
+use ring_lwe::utils::{polysub,nearest_int};
 use crate::utils::{Parameters,mul_vec_simple};
 
 /// Decrypt a ciphertext

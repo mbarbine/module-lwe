@@ -1,5 +1,5 @@
 use polynomial_ring::Polynomial;
-use ring_lwe::{polyadd,polysub,nearest_int};
+use ring_lwe::utils::{polyadd,polysub,nearest_int};
 use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
 
 /// Encrypt a message using the ring-LWE cryptosystem

@@ -2,7 +2,7 @@ use polynomial_ring::Polynomial;
 use rand_distr::{Uniform, Distribution};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
-use ring_lwe::{polyadd, polymul, gen_uniform_poly};
+use ring_lwe::utils::{polyadd, polymul, gen_uniform_poly};
 
 #[derive(Debug)]
 /// default parameters for module-LWE
