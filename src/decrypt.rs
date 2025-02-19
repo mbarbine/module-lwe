@@ -18,17 +18,17 @@ use crate::utils::{Parameters,mul_vec_simple};
 /// let mut m_b = vec![0,1,0,1,0,0,1,1,1,0,1];
 /// m_b.resize(params.n, 0);
 /// let (u, v) = module_lwe::encrypt::encrypt(&pk.0, &pk.1, &m_b, &params, None);
-/// let decrypted_coeffs = module_lwe::decrypt::decrypt(&sk, params.q, &params.f, &u, &v);
+/// let decrypted_coeffs = module_lwe::decrypt::decrypt(&sk, &u, &v, &params);
 /// assert_eq!(m_b, decrypted_coeffs);
 /// ```
 pub fn decrypt(
     sk: &Vec<Polynomial<i64>>,    //secret key
-    q: i64,                     //ciphertext modulus
-    f: &Polynomial<i64>,  //polynomial modulus
     u: &Vec<Polynomial<i64>>, //ciphertext vector
-	v: &Polynomial<i64> 		//ciphertext polynomial
+	v: &Polynomial<i64> ,		//ciphertext polynomial
+    params: &Parameters
 ) -> Vec<i64> {
-	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f), q, f); //Compute v-sk*u mod q
+	let (q, f, omega) = (params.q, &params.f, params.omega); //get parameters
+	let scaled_pt = polysub(&v, &mul_vec_simple(&sk, &u, q, &f, omega), q, f); //Compute v-sk*u mod q
 	let half_q = nearest_int(q,2); // compute nearest integer to q/2
 	let mut decrypted_coeffs = vec![];
 	let mut s;
@@ -49,7 +49,7 @@ pub fn decrypt(
 pub fn decrypt_string(sk_string: &String, ciphertext_string: &String, params: &Parameters) -> String {
 
     //get parameters
-    let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
+    let (n, k) = (params.n, params.k);
     
     // Convert the secret key string into a Vec<Polynomial<i64>>
     let sk_array: Vec<i64> = sk_string.split(',')
@@ -79,7 +79,7 @@ pub fn decrypt_string(sk_string: &String, ciphertext_string: &String, params: &P
         let v = Polynomial::new(v_array.to_vec());
             
         // Decrypt the ciphertext
-        let mut m_b = decrypt(&sk, q, &f, &u, &v);
+        let mut m_b = decrypt(&sk, &u, &v, &params);
         m_b.resize(n,0);
             
         message_binary.extend(m_b);

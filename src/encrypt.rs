@@ -27,7 +27,7 @@ pub fn encrypt(
 ) -> (Vec<Polynomial<i64>>, Polynomial<i64>) {
 
     //get parameters
-    let (n, q, k, f) = (params.n, params.q, params.k, &params.f);
+    let (n, q, k, f, omega) = (params.n, params.q, params.k, &params.f, params.omega);
     
     //generate random ephermal keys
     let r = gen_small_vector(n, k, seed);
@@ -41,10 +41,10 @@ pub fn encrypt(
     let m = Polynomial::new(vec![half_q])*Polynomial::new(m_b.to_vec());
 
     // Compute u = a^T * r + e_1 mod q
-    let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f), &e1, q, f);
+    let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f, omega), &e1, q, f);
 
     // Compute v = t * r + e_2 - m mod q
-    let v = polysub(&polyadd(&mul_vec_simple(t, &r, q, &f), &e2, q, f), &m, q, f);
+    let v = polysub(&polyadd(&mul_vec_simple(t, &r, q, &f, omega), &e2, q, f), &m, q, f);
 
     (u, v)
 }

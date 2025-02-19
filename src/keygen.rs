@@ -17,12 +17,12 @@ pub fn keygen(
 	params: &Parameters,
     seed: Option<u64> //random seed
 ) -> ((Vec<Vec<Polynomial<i64>>>, Vec<Polynomial<i64>>), Vec<Polynomial<i64>>) {
-    let (n,q,k,f) = (params.n, params.q, params.k, &params.f);
+    let (n,q,k,f,omega) = (params.n, params.q, params.k, &params.f, params.omega);
     //Generate a public and secret key
     let a = gen_uniform_matrix(n, k, q, seed);
     let sk = gen_small_vector(n, k, seed);
     let e = gen_small_vector(n, k, seed);
-    let t = add_vec(&mul_mat_vec_simple(&a, &sk, q, &f), &e, q, &f);
+    let t = add_vec(&mul_mat_vec_simple(&a, &sk, q, &f, omega), &e, q, &f);
     
     //Return public key (a, t) and secret key (sk) as a 2-tuple
     ((a, t), sk)
