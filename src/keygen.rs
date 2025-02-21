@@ -1,8 +1,6 @@
 use polynomial_ring::Polynomial;
 use std::collections::HashMap;
-use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix};
-use base64::{engine::general_purpose, Engine as _};
-use bincode;
+use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix,compress};
 
 /// Generate public and secret keys for the ring-LWE cryptosystem
 /// # Arguments
@@ -77,18 +75,10 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
         })
     .collect();
 
-    // Serialize the public and secret key coefficients
-    let pk_bytes = bincode::serialize(&pk_coeffs).expect("Failed to serialize public key coefficients");
-    let sk_bytes = bincode::serialize(&sk_coeffs).expect("Failed to serialize secret key coefficients");
-
-    // Base64 encode the serialized keys
-    let pk_base64 = general_purpose::STANDARD.encode(pk_bytes);
-    let sk_base64 = general_purpose::STANDARD.encode(sk_bytes);
-
     // Store the Base64 encoded keys in a HashMap
     let mut keys: HashMap<String, String> = HashMap::new();
-    keys.insert(String::from("secret"), sk_base64);
-    keys.insert(String::from("public"), pk_base64);
+    keys.insert(String::from("secret"), compress(&sk_coeffs));
+    keys.insert(String::from("public"), compress(&pk_coeffs));
 
     keys
 }

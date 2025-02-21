@@ -1,8 +1,6 @@
 use polynomial_ring::Polynomial;
 use ring_lwe::utils::{polysub,nearest_int};
-use crate::utils::{Parameters,mul_vec_simple};
-use base64::{engine::general_purpose, Engine as _};
-use bincode;
+use crate::utils::{Parameters,mul_vec_simple,decompress};
 
 /// Decrypt a ciphertext
 /// # Arguments
@@ -53,21 +51,15 @@ pub fn decrypt_string(sk_string: &String, ciphertext_base64: &String, params: &P
     let (n, k) = (params.n, params.k);
 
     // Base64 decode the secret key string
-    let sk_bytes = general_purpose::STANDARD.decode(sk_string).expect("Failed to decode base64 secret key");
-
-    // Deserialize the secret key from bytes (it was serialized with bincode)
-    let sk_array: Vec<i64> = bincode::deserialize(&sk_bytes).expect("Failed to deserialize secret key");
+    let sk_array: Vec<i64> = decompress(sk_string);
 
     // Convert the secret key into a Vec<Polynomial<i64>>
     let sk: Vec<Polynomial<i64>> = sk_array.chunks(n)
         .map(|chunk| Polynomial::new(chunk.to_vec()))
         .collect();
 
-    // Base64 decode the ciphertext string
-    let ciphertext_bytes = general_purpose::STANDARD.decode(ciphertext_base64).expect("Failed to decode ciphertext");
-
-    // Deserialize the ciphertext list from the decoded bytes
-    let ciphertext_list: Vec<i64> = bincode::deserialize(&ciphertext_bytes).expect("Failed to deserialize ciphertext");
+    // Base64 decode and deserialize the ciphertext string
+    let ciphertext_list: Vec<i64> = decompress(ciphertext_base64);
 
     let block_size = (k + 1) * n;
     let num_blocks = ciphertext_list.len() / block_size;

@@ -1,8 +1,6 @@
 use polynomial_ring::Polynomial;
 use ring_lwe::utils::{polyadd,polysub,nearest_int};
-use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
-use base64::{engine::general_purpose, Engine as _};
-use bincode;
+use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector, compress, decompress};
 
 /// Encrypt a message using the ring-LWE cryptosystem
 /// # Arguments
@@ -72,11 +70,8 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
     // Get parameters
     let (n, k) = (params.n, params.k);
 
-    // Decode the base64-encoded public key string
-    let pk_bytes = general_purpose::STANDARD.decode(pk_string).expect("Failed to decode base64 public key");
-    
-    // Deserialize the public key from bytes (it was serialized with bincode)
-    let pk_list: Vec<i64> = bincode::deserialize(&pk_bytes).expect("Failed to deserialize public key");
+    // Decode and deserialize the base64-encoded public key string
+    let pk_list: Vec<i64> = decompress(pk_string);
 
     // Parse the public key
     let a: Vec<Vec<Polynomial<i64>>> = pk_list[..k * k * n]
@@ -120,9 +115,6 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
         ciphertext_list.extend(v_flattened);
     }
 
-    // Serialize and Base64 encode the ciphertext
-    let ciphertext_bytes = bincode::serialize(&ciphertext_list).expect("Failed to serialize ciphertext");
-    let ciphertext_base64 = general_purpose::STANDARD.encode(ciphertext_bytes);
-
-    ciphertext_base64
+    // Serialize and Base64 encode the ciphertext coefficient list
+    compress(&ciphertext_list)
 }
