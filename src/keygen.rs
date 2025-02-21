@@ -1,6 +1,8 @@
 use polynomial_ring::Polynomial;
 use std::collections::HashMap;
 use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, gen_small_vector, gen_uniform_matrix};
+use base64::{engine::general_purpose, Engine as _};
+use bincode;
 
 /// Generate public and secret keys for the ring-LWE cryptosystem
 /// # Arguments
@@ -29,22 +31,22 @@ pub fn keygen(
 }
 
 /// Generate public and secret keys for the ring-LWE cryptosystem and return them as a HashMap
+/// They are serialized and base64 encoded
 /// # Arguments
 /// * `params` - Parameters for the ring-LWE cryptosystem
 /// * `seed` - random seed
 /// # Returns
-/// * `keys` - HashMap containing the public and secret keys
+/// * `keys` - HashMap containing the public and secret keys as base64 encoded strings
 /// # Example
 /// ```
 /// let params = module_lwe::utils::Parameters::default();
 /// let keys = module_lwe::keygen::keygen_string(&params, None);
 /// ```
 pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, String> {
+    // Generate public and secret keys
+    let (pk, sk) = keygen(params, seed);
 
-    //generate public, secret keys
-    let (pk,sk) = keygen(params,seed);
-
-    // Convert public key to a flattened list of coefficients
+    // Convert the public key to a flattened list of coefficients
     let mut pk_coeffs: Vec<i64> = pk.0
         .iter()
         .flat_map(|row| {
@@ -64,7 +66,7 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
         })
     );
 
-    // Convert secret key to a flattened list of coefficients
+    // Convert the secret key to a flattened list of coefficients
     let sk_coeffs: Vec<i64> = sk
         .iter()
         .flat_map(|poly| {
@@ -74,20 +76,18 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
         })
     .collect();
 
-    // Convert the public/secret key coefficients to a comma-separated string
-    let pk_coeffs_str = pk_coeffs.iter()
-        .map(|coef| coef.to_string())
-        .collect::<Vec<String>>()
-        .join(",");
-    let sk_coeffs_str = sk_coeffs.iter()
-        .map(|coef| coef.to_string())
-        .collect::<Vec<String>>()
-        .join(",");
-    
-    //store the secret/public key in a HashMap
+    // Serialize the public and secret key coefficients
+    let pk_bytes = bincode::serialize(&pk_coeffs).expect("Failed to serialize public key coefficients");
+    let sk_bytes = bincode::serialize(&sk_coeffs).expect("Failed to serialize secret key coefficients");
+
+    // Base64 encode the serialized keys
+    let pk_base64 = general_purpose::STANDARD.encode(pk_bytes);
+    let sk_base64 = general_purpose::STANDARD.encode(sk_bytes);
+
+    // Store the Base64 encoded keys in a HashMap
     let mut keys: HashMap<String, String> = HashMap::new();
-    keys.insert(String::from("secret"), sk_coeffs_str);
-    keys.insert(String::from("public"), pk_coeffs_str);
-    
+    keys.insert(String::from("secret"), sk_base64);
+    keys.insert(String::from("public"), pk_base64);
+
     keys
 }

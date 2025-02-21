@@ -1,6 +1,8 @@
 use polynomial_ring::Polynomial;
 use ring_lwe::utils::{polyadd,polysub,nearest_int};
 use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
+use base64::{engine::general_purpose, Engine as _};
+use bincode;
 
 /// Encrypt a message using the ring-LWE cryptosystem
 /// # Arguments
@@ -43,6 +45,8 @@ pub fn encrypt(
     // Compute u = a^T * r + e_1 mod q
     let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f, omega), &e1, q, f);
 
+    println!("t: {:?}", t);
+
     // Compute v = t * r + e_2 - m mod q
     let v = polysub(&polyadd(&mul_vec_simple(t, &r, q, &f, omega), &e2, q, f), &m, q, f);
 
@@ -51,12 +55,12 @@ pub fn encrypt(
 
 /// function to encrypt a message given a public_key string
 /// # Arguments
-/// * `pk_string` - public key string
-/// * `message_string` - message string
+/// * `pk_string` - public key string in base64 encoding
+/// * `message_string` - message string in base64 encoding
 /// * `params` - Parameters for the ring-LWE cryptosystem
 /// * `seed` - random seed
 /// # Returns
-/// * `ciphertext_str` - ciphertext string
+/// * `ciphertext_str` - ciphertext string, base64 encoded
 /// # Example
 /// ```
 /// let params = module_lwe::utils::Parameters::default();
@@ -67,14 +71,16 @@ pub fn encrypt(
 /// let ciphertext_string = module_lwe::encrypt::encrypt_string(&pk_string, &message_string, &params, None);
 /// ```
 pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Parameters, seed: Option<u64>) -> String {
-
-    //get parameters
+    // Get parameters
     let (n, k) = (params.n, params.k);
 
-    // Parse public key
+    // Decode the base64-encoded public key string
+    let pk_bytes = general_purpose::STANDARD.decode(pk_string).expect("Failed to decode base64 public key");
     
-    let pk_list: Vec<i64> = pk_string.split(',').map(|x| x.parse::<i64>().unwrap()).collect();
+    // Deserialize the public key from bytes (it was serialized with bincode)
+    let pk_list: Vec<i64> = bincode::deserialize(&pk_bytes).expect("Failed to deserialize public key");
 
+    // Parse the public key
     let a: Vec<Vec<Polynomial<i64>>> = pk_list[..k * k * n]
         .chunks(k * n)
         .map(|chunk| {
@@ -93,7 +99,7 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
         .flat_map(|byte| (0..8).rev().map(move |i| ((byte >> i) & 1) as i64))
         .collect();
 
-    // Break message into blocks, including the last partial block if necessary
+    // Break message into blocks
     let message_blocks: Vec<Vec<i64>> = message_binary
         .chunks(n) // Divide the binary message into chunks of size `n`
         .map(|chunk| chunk.to_vec()) // Convert each chunk into a vector
@@ -111,12 +117,14 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
             })
             .collect();
         let mut v_flattened: Vec<i64> = v.coeffs().to_vec();
-        v_flattened.resize(n,0);
+        v_flattened.resize(n, 0);
         ciphertext_list.extend(u_flattened);
         ciphertext_list.extend(v_flattened);
     }
 
-    let ciphertext_str = ciphertext_list.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
+    // Serialize and Base64 encode the ciphertext
+    let ciphertext_bytes = bincode::serialize(&ciphertext_list).expect("Failed to serialize ciphertext");
+    let ciphertext_base64 = general_purpose::STANDARD.encode(ciphertext_bytes);
 
-    ciphertext_str
+    ciphertext_base64
 }
