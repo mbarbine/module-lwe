@@ -1,6 +1,6 @@
 use polynomial_ring::Polynomial;
 use ring_lwe::utils::{polyadd,polysub,nearest_int};
-use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector};
+use crate::utils::{Parameters, add_vec, mul_mat_vec_simple, transpose, mul_vec_simple, gen_small_vector, compress, decompress};
 
 /// Encrypt a message using the ring-LWE cryptosystem
 /// # Arguments
@@ -51,12 +51,12 @@ pub fn encrypt(
 
 /// function to encrypt a message given a public_key string
 /// # Arguments
-/// * `pk_string` - public key string
-/// * `message_string` - message string
+/// * `pk_string` - public key string in base64 encoding
+/// * `message_string` - message string in base64 encoding
 /// * `params` - Parameters for the ring-LWE cryptosystem
 /// * `seed` - random seed
 /// # Returns
-/// * `ciphertext_str` - ciphertext string
+/// * `ciphertext_str` - ciphertext string in base64 encoding
 /// # Example
 /// ```
 /// let params = module_lwe::utils::Parameters::default();
@@ -67,14 +67,13 @@ pub fn encrypt(
 /// let ciphertext_string = module_lwe::encrypt::encrypt_string(&pk_string, &message_string, &params, None);
 /// ```
 pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Parameters, seed: Option<u64>) -> String {
-
-    //get parameters
+    // Get parameters
     let (n, k) = (params.n, params.k);
 
-    // Parse public key
-    
-    let pk_list: Vec<i64> = pk_string.split(',').map(|x| x.parse::<i64>().unwrap()).collect();
+    // Decode and deserialize the base64-encoded public key string
+    let pk_list: Vec<i64> = decompress(pk_string);
 
+    // Parse the public key
     let a: Vec<Vec<Polynomial<i64>>> = pk_list[..k * k * n]
         .chunks(k * n)
         .map(|chunk| {
@@ -93,7 +92,7 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
         .flat_map(|byte| (0..8).rev().map(move |i| ((byte >> i) & 1) as i64))
         .collect();
 
-    // Break message into blocks, including the last partial block if necessary
+    // Break message into blocks
     let message_blocks: Vec<Vec<i64>> = message_binary
         .chunks(n) // Divide the binary message into chunks of size `n`
         .map(|chunk| chunk.to_vec()) // Convert each chunk into a vector
@@ -111,12 +110,11 @@ pub fn encrypt_string(pk_string: &String, message_string: &String, params: &Para
             })
             .collect();
         let mut v_flattened: Vec<i64> = v.coeffs().to_vec();
-        v_flattened.resize(n,0);
+        v_flattened.resize(n, 0);
         ciphertext_list.extend(u_flattened);
         ciphertext_list.extend(v_flattened);
     }
 
-    let ciphertext_str = ciphertext_list.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
-
-    ciphertext_str
+    // Serialize and Base64 encode the ciphertext coefficient list
+    compress(&ciphertext_list)
 }

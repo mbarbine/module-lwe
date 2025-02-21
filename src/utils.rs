@@ -4,6 +4,8 @@ use rand::SeedableRng;
 use rand::rngs::StdRng;
 use ring_lwe::utils::{polyadd, polymul_fast, gen_uniform_poly};
 use ntt::omega;
+use base64::{engine::general_purpose, Engine as _};
+use bincode;
 
 #[derive(Debug)]
 /// default parameters for module-LWE
@@ -143,4 +145,24 @@ pub fn gen_uniform_matrix(size : usize, rank: usize, modulus: i64, seed: Option<
 		}
 	}
 	m
+}
+
+/// seralize and encode a vector of i64 to a base64 encoded string
+/// # Arguments
+/// * `data` - vector of i64
+/// # Returns
+/// * `encoded` - base64 encoded string
+pub fn compress(data: &Vec<i64>) -> String {
+    let serialized_data = bincode::serialize(data).expect("Failed to serialize data");
+    general_purpose::STANDARD.encode(&serialized_data)
+}
+
+/// decode and deserialize a base64 encoded string to a vector of i64
+/// # Arguments
+/// * `base64_str` - base64 encoded string
+/// # Returns
+/// * `decoded_data` - vector of i64
+pub fn decompress(base64_str: &str) -> Vec<i64> {
+    let decoded_bytes = general_purpose::STANDARD.decode(base64_str).expect("Failed to decode base64 string");
+    bincode::deserialize(&decoded_bytes).expect("Failed to deserialize data")
 }
