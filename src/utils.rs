@@ -62,8 +62,6 @@ pub fn add_vec(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i6
 /// # Returns
 /// * `result` - polynomial
 pub fn mul_vec_simple(v0: &Vec<Polynomial<i64>>, v1: &Vec<Polynomial<i64>>, modulus: i64, poly_mod: &Polynomial<i64>, omega: i64) -> Polynomial<i64> {
-	println!("v0: {:?}", v0);
-	println!("v1: {:?}", v1);
 	assert!(v0.len() == v1.len());
 	let mut result = Polynomial::new(vec![]);
 	for i in 0..v0.len() {

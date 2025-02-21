@@ -43,11 +43,11 @@ pub fn decrypt(
 
 /// decrypt a ciphertext string given a secret key
 /// # Arguments
-/// * `sk_string` - secret key string
-/// * `ciphertext_string` - ciphertext string
+/// * `sk_string` - secret key string in base64 encoding
+/// * `ciphertext_string` - ciphertext string in base64 encoding
 /// * `params` - Parameters for the ring-LWE cryptosystem
 /// # Returns
-/// * `message_string` - decrypted message string
+/// * `message_string` - decrypted message string as plaintext
 pub fn decrypt_string(sk_string: &String, ciphertext_base64: &String, params: &Parameters) -> String {
     // Get parameters
     let (n, k) = (params.n, params.k);

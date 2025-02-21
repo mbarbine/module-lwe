@@ -45,8 +45,6 @@ pub fn encrypt(
     // Compute u = a^T * r + e_1 mod q
     let u = add_vec(&mul_mat_vec_simple(&transpose(a), &r, q, f, omega), &e1, q, f);
 
-    println!("t: {:?}", t);
-
     // Compute v = t * r + e_2 - m mod q
     let v = polysub(&polyadd(&mul_vec_simple(t, &r, q, &f, omega), &e2, q, f), &m, q, f);
 
@@ -60,7 +58,7 @@ pub fn encrypt(
 /// * `params` - Parameters for the ring-LWE cryptosystem
 /// * `seed` - random seed
 /// # Returns
-/// * `ciphertext_str` - ciphertext string, base64 encoded
+/// * `ciphertext_str` - ciphertext string in base64 encoding
 /// # Example
 /// ```
 /// let params = module_lwe::utils::Parameters::default();

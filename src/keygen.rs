@@ -57,6 +57,7 @@ pub fn keygen_string(params: &Parameters, seed: Option<u64>) -> HashMap<String, 
             })
         })
         .collect();
+
     pk_coeffs.extend(
         pk.1.iter()
         .flat_map(|poly| {
