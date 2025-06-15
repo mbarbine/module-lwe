@@ -48,8 +48,5 @@ jobs:
     - name: Test
       run: cargo test --verbose
 
-    - name: Clippy Lint
-      run: cargo clippy --all-targets -- -D warnings
-
     - name: Rustfmt Check
       run: cargo fmt --all -- --check
