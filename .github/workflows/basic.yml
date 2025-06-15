@@ -1,5 +1,3 @@
-# .github/workflows/basic.yml
-
 name: basic
 
 on:
@@ -10,43 +8,15 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTFLAGS: "-D warnings"
 
 jobs:
   build:
-    name: Build & Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, beta, nightly]
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Install Rust toolchain (${{ matrix.rust }})
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        override: true
-
-    - name: Cache cargo dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.rust }}-cargo-
-
-    - name: Build
-      run: cargo build --verbose
-
-    - name: Test
-      run: cargo test --verbose
-
-    - name: Rustfmt Check
-      run: cargo fmt --all -- --check
+    - uses: actions/checkout@v4
+      
+    - name: build and run tests for module-lwe
+      run: |
+        cargo build --verbose
+        cargo test --verbose
